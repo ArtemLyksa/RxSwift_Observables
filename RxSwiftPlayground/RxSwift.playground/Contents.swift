@@ -28,12 +28,12 @@ example(of: "subscribe") {
     
     let observable: Observable<Int> = Observable<Int>.of(one, two, three)
     
-//    observable.subscribe { event in
-//        
-//        if let element = event.element {
-//            print(element)
-//        }
-//    }
+    //    observable.subscribe { event in
+    //
+    //        if let element = event.element {
+    //            print(element)
+    //        }
+    //    }
     
     observable.subscribe(onNext: { element in
         print(element)
@@ -113,9 +113,9 @@ example(of: "create") {
     Observable<String>.create { observer in
         observer.onNext("1")
         
-//        observer.onError(MyError.anError)
-//        
-//        observer.onCompleted()
+        observer.onError(MyError.anError)
+        
+        observer.onCompleted()
         
         observer.onNext("?")
         
@@ -127,8 +127,34 @@ example(of: "create") {
             onError: { print($0) },
             onCompleted: { print("Completed") },
             onDisposed: { print("Disposed") }
-        )
-//        .disposed(by: disposeBag)
+    )
+        .disposed(by: disposeBag)
+}
+
+
+example(of: "deferred") {
+    let disposeBag = DisposeBag()
+    
+    var flip = false
+    
+    let factory: Observable<Int> = Observable.deferred {
+        
+        flip = !flip
+        
+        if flip {
+            return Observable.of(1, 2, 3)
+        } else {
+            return Observable.of(4, 5, 6)
+        }
+    }
+    
+    
+    for _ in 0...3 {
+        factory.subscribe(onNext: {
+            print($0, terminator:"")
+        })
+            .disposed(by: disposeBag)
+        print() }
 }
 /*:
  Copyright (c) 2014-2016 Razeware LLC
